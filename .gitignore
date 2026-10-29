@@ -1,0 +1,13 @@
+# agent setup (local only)
+CLAUDE.md
+.claude/
+# raw data is never published (no licence grants redistribution, see docs/DATA.md)
+data/
+*.parquet
+*.duckdb
+*.json.gz
+# python
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
