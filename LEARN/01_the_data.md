@@ -20,7 +20,7 @@ Udacity made a fake music app called **Sparkify** and a program that simulates u
 file (128 MB). It is **simulated**: no real people. Always say this in an interview.
 
 ## Users, sessions, days
-After cleaning: **225 users**, **3,176 sessions**, **278,150 events**, **61 days** (Oct 1 – Nov 30, 2018).
+After cleaning: **225 users**, **3,175 sessions**, **278,150 events**, **61 days** (Oct 1 – Nov 30, 2018).
 
 ## What "churn" means here
 **Churn** = a user leaves. In this project, churn has one exact meaning: the user reached the page

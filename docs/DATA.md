@@ -39,7 +39,7 @@ appear for logged-in users, from `NextSong` (228,108 events) down to `Cancellati
 | minus events with no user | −8,346 | 8,249 "Logged Out" + 97 "Guest" events have an empty `userId`, so they cannot be tied to anyone |
 | minus events after Nov 30 | −4 | the log really ends on Nov 30. After it there are only 3 songs just after midnight on Dec 1 and 1 song on Dec 3 (nothing on Dec 2). Keeping them would make the last "21-day" window look 3 days longer than the data is |
 | minus exact duplicates | −0 | checked, none found |
-| **Clean events** | **278,150** | 225 users, 3,176 sessions, 61 days (Oct 1 – Nov 30, 2018) |
+| **Clean events** | **278,150** | 225 users, 3,175 sessions, 61 days (Oct 1 – Nov 30, 2018) |
 
 `tests/check_quality.py` re-derives this table on every run and **stops the pipeline** if any number changes.
 
