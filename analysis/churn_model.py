@@ -61,7 +61,9 @@ feature_sql = (ROOT / "analysis/features.sql").read_text()
 
 
 def features(cutoff):
-    return con.execute(feature_sql, [str(cutoff), horizon]).df()
+    # round to 6 decimals: DuckDB adds floats in parallel, so the last digits can differ between runs,
+    # and that is enough to move a tree split. Rounding makes every run identical.
+    return con.execute(feature_sql, [str(cutoff), horizon]).df().round(6)
 
 
 train, test = features(train_cutoff), features(test_cutoff)

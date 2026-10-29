@@ -28,8 +28,8 @@ rows = []
 for shift in range(7):
     te_cut = test_cutoff - timedelta(days=shift)
     tr_cut = te_cut - timedelta(days=horizon)
-    tr = con.execute(sql, [str(tr_cut), horizon]).df()
-    te = con.execute(sql, [str(te_cut), horizon]).df()
+    tr = con.execute(sql, [str(tr_cut), horizon]).df().round(6)   # .round(6): see churn_model.py
+    te = con.execute(sql, [str(te_cut), horizon]).df().round(6)
     X_tr, y_tr = tr.drop(columns=["user_id", "churned"]).astype(float), tr["churned"]
     X_te, y_te = te.drop(columns=["user_id", "churned"]).astype(float), te["churned"]
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)

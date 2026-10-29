@@ -4,4 +4,4 @@ training_data,model,rows,churn_rows,churn_rate,cv_pr_auc_mean,cv_pr_auc_sd,lift_
 "2 snapshots (2018-10-13, 2018-10-20)",logistic_regression,368,42,0.1141,0.1557,0.016,1.36
 "2 snapshots (2018-10-13, 2018-10-20)",gradient_boosting,368,42,0.1141,0.2375,0.0215,2.08
 3 snapshots (2018-10-06 to 2018-10-20),logistic_regression,515,61,0.1184,0.1412,0.0144,1.19
-3 snapshots (2018-10-06 to 2018-10-20),gradient_boosting,515,61,0.1184,0.1668,0.0185,1.41
+3 snapshots (2018-10-06 to 2018-10-20),gradient_boosting,515,61,0.1184,0.1664,0.0184,1.41

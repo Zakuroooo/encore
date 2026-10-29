@@ -33,7 +33,8 @@ MODELS = make_models(7)
 
 rows = []
 for option, cuts in OPTIONS.items():
-    df = pd.concat([con.execute(sql, [c, horizon]).df() for c in cuts], ignore_index=True)
+    # .round(6): same reason as in churn_model.py (parallel float sums differ in the last digits)
+    df = pd.concat([con.execute(sql, [c, horizon]).df().round(6) for c in cuts], ignore_index=True)
     X = df.drop(columns=["user_id", "churned"]).astype(float)
     y, groups = df["churned"], df["user_id"]
     for name, m in MODELS.items():

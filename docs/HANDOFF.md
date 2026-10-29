@@ -1,3 +1,7 @@
+> **Historical note.** This was the hand-over from the local session. Everything listed under "Next" is now done;
+> see README.md. Two things changed since: the cutoffs moved to Oct 20 / Nov 10 (ADR-005), and the licence
+> finding is recorded in docs/DATA.md (no licence found).
+
 # Hand-over: local session → cloud session (Oct 29, 2026)
 
 The project was started in a local session on Pranay's Mac and moved to the cloud. Continue from exactly this

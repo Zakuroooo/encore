@@ -10,7 +10,7 @@ python -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python pipeline.py                   # download -> build -> checks -> model -> experiment -> robustness -> decide
-python -m pytest                     # 19 tests
+python -m pytest                     # 20 tests
 streamlit run dashboard/app.py       # opens http://localhost:8501
 ```
 `python pipeline.py --from model` restarts from a later step (skips the download and the SQL build).

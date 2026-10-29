@@ -63,7 +63,7 @@ analysis/churn_model.py      random vs rule vs logistic regression vs gradient b
 analysis/robustness.py       the same test on 7 dates; analysis/experiment_snapshots.py: the idea that didn't stick
 analysis/decision.py         sizing with labelled assumptions + A/B sample size
 dashboard/app.py             Streamlit, reads only outputs/
-tests/                       19 pytest tests incl. the no-leakage proof; CI in .github/workflows/ci.yml
+tests/                       20 pytest tests incl. the no-leakage proof; CI in .github/workflows/ci.yml
 ```
 
 ## Docs
