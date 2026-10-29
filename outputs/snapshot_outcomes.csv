@@ -1,0 +1,10 @@
+plan,outcome,users,share
+all,cancelled,13,0.0707
+all,stayed,156,0.8478
+all,went_silent,15,0.0815
+free,cancelled,4,0.0556
+free,stayed,58,0.8056
+free,went_silent,10,0.1389
+paid,cancelled,9,0.0804
+paid,stayed,98,0.875
+paid,went_silent,5,0.0446

@@ -12,7 +12,7 @@ SELECT
     count(*)                                                  AS n_events,
     count(*) FILTER (WHERE page = 'NextSong')                 AS n_songs,
     -- level at the start of the session (free or paid)
-    arg_min(level, event_ts)                                  AS level
+    arg_min(level, event_seq)                                  AS level
 FROM clean.events
 GROUP BY user_id, session_id;
 
@@ -21,7 +21,7 @@ CREATE TABLE clean.users AS
 WITH song_rank AS (
     -- number each user's songs in time order, so we can find the 10th song
     SELECT user_id, event_ts,
-           row_number() OVER (PARTITION BY user_id ORDER BY event_ts, item_in_session) AS song_no
+           row_number() OVER (PARTITION BY user_id ORDER BY event_ts, session_id, item_in_session) AS song_no
     FROM clean.events
     WHERE page = 'NextSong'
 ),
@@ -31,11 +31,16 @@ tenth AS (
 SELECT
     e.user_id,
     any_value(e.gender)                                                    AS gender,
-    min(e.registration_ts)                                                 AS registration_ts,
+    -- Source quirk: 3 users have a registration time AFTER their first logged-in event (by 16-55 hours).
+    -- A user cannot listen before signing up, so registration is set to the first event for them,
+    -- and the original value is kept in registration_ts_raw. The quality checks pin this count at 3.
+    least(min(e.registration_ts), min(e.event_ts))                         AS registration_ts,
+    min(e.registration_ts)                                                 AS registration_ts_raw,
+    min(e.registration_ts) > min(e.event_ts)                               AS registration_fixed,
     min(e.event_ts)                                                        AS first_event_ts,
     max(e.event_ts)                                                        AS last_event_ts,
-    arg_min(e.level, e.event_ts)                                           AS first_level,
-    arg_max(e.level, e.event_ts)                                           AS last_level,
+    arg_min(e.level, e.event_seq)                                           AS first_level,
+    arg_max(e.level, e.event_seq)                                           AS last_level,
     mode(e.device)                                                         AS device,
     mode(e.state)                                                          AS state,
     count(*)                                                               AS n_events,

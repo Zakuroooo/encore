@@ -41,8 +41,12 @@ check("no duplicate events in clean layer", dupes == 0, f"{dupes} duplicates")
 # 4. Time range: all events inside the documented window, and registration before first event.
 lo, hi = con.execute("SELECT min(event_ts), max(event_ts) FROM clean.events").fetchone()
 check("events inside log window", str(lo) >= WINDOW[0] and str(hi) < WINDOW[1], f"{lo} to {hi}")
+KNOWN_REG_QUIRK = 3  # users whose raw registration is after their first event (see sql/03_users_sessions.sql)
+fixed = q("SELECT count(*) FROM clean.users WHERE registration_fixed")
+check("registration quirk is the known one", fixed == KNOWN_REG_QUIRK,
+      f"{fixed} users had registration after first event (expected {KNOWN_REG_QUIRK}, corrected in clean layer)")
 bad_reg = q("SELECT count(*) FROM clean.users WHERE registration_ts > first_event_ts")
-check("registration before first event", bad_reg == 0, f"{bad_reg} users registered after their first event")
+check("registration before first event (after fix)", bad_reg == 0, f"{bad_reg} users")
 
 # 5. Allowed values.
 bad_level = q("SELECT count(*) FROM clean.events WHERE level NOT IN ('free', 'paid')")

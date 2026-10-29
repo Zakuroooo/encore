@@ -17,16 +17,17 @@ base AS (
            date_diff('day', max(e.event_ts), any_value(p.test_cutoff)::TIMESTAMP) AS recency_days,
            count(DISTINCT e.session_id)                                       AS frequency_sessions,
            count(*) FILTER (WHERE e.page = 'NextSong')                        AS monetary_songs,
-           arg_max(e.level, e.event_ts)                                       AS tier_at_snapshot
+           arg_max(e.level, e.event_seq)                                       AS tier_at_snapshot
     FROM clean.events e JOIN eligible USING (user_id), p
     WHERE e.event_ts < p.test_cutoff
     GROUP BY e.user_id
 ),
 scored AS (
     SELECT *,
-           4 - ntile(3) OVER (ORDER BY recency_days)       AS r_score,  -- fewest days = 3
-           ntile(3) OVER (ORDER BY frequency_sessions)     AS f_score,
-           ntile(3) OVER (ORDER BY monetary_songs)         AS m_score
+           -- ties (same value) are broken by user_id so every run gives the same scores
+           4 - ntile(3) OVER (ORDER BY recency_days, user_id)       AS r_score,  -- fewest days = 3
+           ntile(3) OVER (ORDER BY frequency_sessions, user_id)     AS f_score,
+           ntile(3) OVER (ORDER BY monetary_songs, user_id)         AS m_score
     FROM base
 )
 SELECT s.*,

@@ -1,0 +1,6 @@
+segment,users,paid_users,median_recency_days,median_sessions,median_songs,churned_next_21d,churn_rate_next_21d
+Champions,39,33,1.0,17.0,1177.0,6,0.1538
+Loyal,47,33,4.0,11.0,809.0,3,0.0638
+Casual,37,13,3.0,4.0,152.0,2,0.0541
+Hibernating,39,14,16.0,3.0,112.0,2,0.0513
+"At risk (was strong, gone quiet)",22,19,9.0,9.5,675.0,0,0.0

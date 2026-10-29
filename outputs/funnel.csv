@@ -1,0 +1,6 @@
+step_no,step,users,pct_of_start,pct_of_previous
+1,Signed up (free),177,1.0,
+2,First song,177,1.0,1.0
+3,10 songs,174,0.9831,0.9831
+4,Added a friend,133,0.7514,0.7644
+5,Became paid,71,0.4011,0.5338

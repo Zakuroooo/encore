@@ -1,0 +1,4 @@
+band,users,churners,mean_predicted,actual_churn_rate
+low,62,3,0.0083,0.0484
+middle,61,2,0.048,0.0328
+high,61,8,0.2696,0.1311

@@ -1,0 +1,47 @@
+{
+  "assumptions": {
+    "price_per_month": 9.99,
+    "discount_per_offer": 5.0,
+    "paid_base": 10000,
+    "days_per_month": 30,
+    "redeem_rate_if_not_leaving": 0.3,
+    "save_rate": {
+      "low": 0.05,
+      "mid": 0.1,
+      "high": 0.2
+    },
+    "extra_months_kept": {
+      "low": 1,
+      "mid": 2,
+      "high": 3
+    },
+    "ab_alpha": 0.05,
+    "ab_power": 0.8,
+    "ab_control_retained_30d": 0.02
+  },
+  "facts_from_data": {
+    "cancel_page_users": 52,
+    "cancel_page_confirm_rate": 1.0,
+    "median_seconds_cancel_to_confirm": 25.5,
+    "paid_users_at_snapshot": 112,
+    "paid_cancel_rate_21d": 0.0804,
+    "paid_cancel_rate_month_est": 0.1148,
+    "model_top20_paid_users": 24,
+    "model_top20_paid_churn_rate": 0.0833,
+    "model_rest_paid_churn_rate": 0.0795,
+    "model_p_value_vs_random": 0.2513
+  },
+  "monthly_per_10k_paid": {
+    "cancel_page_attempts": 1148,
+    "model_flagged_contacts": 3061,
+    "model_flagged_true_churners": 255.1
+  },
+  "option_b_break_even_save_rate": 0.6608,
+  "option_b_can_break_even": true,
+  "ab_test": {
+    "control_retained_30d_assumed": 0.02,
+    "minimum_effect_points": 0.05,
+    "users_per_arm": 269,
+    "weeks_needed_at_10k_paid": 2.0
+  }
+}

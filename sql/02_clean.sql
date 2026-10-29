@@ -18,6 +18,10 @@ deduped AS (
 )
 -- Step 3: give columns clear names and proper types. ts and registration are milliseconds since 1970 (UTC).
 SELECT
+    -- a unique running number in time order. Some events share the exact same timestamp (e.g. the
+    -- moment of an upgrade), so "first" / "last" event is decided by this number, never by time alone:
+    -- that keeps every run's answer identical.
+    row_number() OVER (ORDER BY userId, ts, sessionId, itemInSession, page) AS event_seq,
     userId                                   AS user_id,
     sessionId                                AS session_id,
     itemInSession                            AS item_in_session,

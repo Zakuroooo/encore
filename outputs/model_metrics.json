@@ -1,0 +1,117 @@
+{
+  "train_cutoff": "2018-10-22",
+  "test_cutoff": "2018-11-12",
+  "horizon_days": 21,
+  "n_features": 21,
+  "features": [
+    "tenure_days",
+    "days_since_last_event",
+    "active_days",
+    "sessions",
+    "songs",
+    "songs_last14",
+    "listening_trend",
+    "avg_session_minutes",
+    "thumbs_up_per_100",
+    "thumbs_down_per_100",
+    "friends_per_100",
+    "playlist_adds_per_100",
+    "ads_per_100",
+    "errors",
+    "help_visits",
+    "downgrade_page_visits",
+    "downgrades",
+    "settings_visits",
+    "is_paid_now",
+    "is_male",
+    "is_apple_device"
+  ],
+  "train_users": 184,
+  "train_churners": 16,
+  "train_churn_rate": 0.087,
+  "test_users": 184,
+  "test_churners": 13,
+  "test_churn_rate": 0.0707,
+  "top_share": 0.2,
+  "cv_pr_auc_train": {
+    "logistic_regression": 0.1376,
+    "gradient_boosting": 0.1883
+  },
+  "chosen_model": "gradient_boosting",
+  "test": {
+    "rule_days_since_last_event": {
+      "pr_auc": 0.0558,
+      "pr_auc_95ci": [
+        0.0318,
+        0.1037
+      ],
+      "roc_auc": 0.3489,
+      "k": 37,
+      "churners_caught": 1,
+      "precision_at_k": 0.027,
+      "recall_at_k": 0.0769,
+      "lift_at_k": 0.38,
+      "p_value_vs_random": 0.9545
+    },
+    "logistic_regression": {
+      "pr_auc": 0.1061,
+      "pr_auc_95ci": [
+        0.0537,
+        0.2278
+      ],
+      "roc_auc": 0.5929,
+      "k": 37,
+      "churners_caught": 4,
+      "precision_at_k": 0.1081,
+      "recall_at_k": 0.3077,
+      "lift_at_k": 1.53,
+      "brier": 0.1868,
+      "mean_predicted": 0.3179,
+      "p_value_vs_random": 0.2513
+    },
+    "gradient_boosting": {
+      "pr_auc": 0.1076,
+      "pr_auc_95ci": [
+        0.0565,
+        0.2169
+      ],
+      "roc_auc": 0.5978,
+      "k": 37,
+      "churners_caught": 4,
+      "precision_at_k": 0.1081,
+      "recall_at_k": 0.3077,
+      "lift_at_k": 1.53,
+      "brier": 0.0882,
+      "mean_predicted": 0.1081,
+      "p_value_vs_random": 0.2513
+    },
+    "random_order": {
+      "pr_auc": 0.0707,
+      "k": 37,
+      "churners_caught": 2.63,
+      "churners_caught_95_range": [
+        0,
+        6
+      ],
+      "recall_at_k": 0.2021,
+      "lift_at_k": 1.0
+    }
+  },
+  "test_wide_label_cancel_or_silent": {
+    "users_left_any_way": 28,
+    "rate": 0.1522,
+    "rule_days_since_last_event": {
+      "pr_auc": 0.2498,
+      "roc_auc": 0.5791
+    },
+    "logistic_regression": {
+      "pr_auc": 0.2015,
+      "roc_auc": 0.5959
+    },
+    "gradient_boosting": {
+      "pr_auc": 0.1961,
+      "roc_auc": 0.533
+    }
+  },
+  "log_ends": "2018-12-03 01:11:16"
+}
