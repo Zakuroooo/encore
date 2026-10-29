@@ -1,0 +1,4 @@
+# Only what the dashboard needs. Streamlit Community Cloud reads this file because it sits next to app.py.
+streamlit==1.66.1
+pandas==3.1.0
+altair==6.3.0
