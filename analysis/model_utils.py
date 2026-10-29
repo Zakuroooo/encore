@@ -2,7 +2,31 @@
 import math
 
 import numpy as np
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+
+def make_models(seed=7):
+    """The two models compared everywhere in the project. Settings are fixed (not tuned on test data):
+    small, heavily regularised models, because there are only ~15 churners to learn from."""
+    return {
+        "logistic_regression": make_pipeline(
+            StandardScaler(), LogisticRegression(C=0.5, class_weight="balanced", max_iter=2000)),
+        "gradient_boosting": HistGradientBoostingClassifier(
+            max_depth=3, learning_rate=0.05, max_iter=150, min_samples_leaf=10,
+            class_weight="balanced", random_state=seed),
+    }
+
+
+def random_caught(y, share, n=10_000, seed=7):
+    """How many churners land in the top `share` when users are put in a random order, n times."""
+    y = np.asarray(y)
+    k = math.ceil(share * len(y))
+    rng = np.random.default_rng(seed)
+    return np.array([y[rng.permutation(len(y))[:k]].sum() for _ in range(n)])
 
 
 def top_k_stats(y, score, share):

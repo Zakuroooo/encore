@@ -1,37 +1,35 @@
-"""Experiment (kept because it did NOT help): train on several weekly snapshots stacked together.
+"""Experiment (the result was mixed, so the simpler single snapshot stays): train on several weekly
+snapshots stacked together.
 Idea: more training rows. Each user appears once per snapshot, so folds are grouped by user
 (the same person never sits in both the training and the checking fold).
 Judged on TRAINING data only (cross-validation), never on the test set.
 Writes outputs/experiment_snapshots.csv
 """
+import sys
+from datetime import timedelta
 from pathlib import Path
 
 import duckdb
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import StratifiedGroupKFold, cross_val_predict
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "analysis"))
+from model_utils import make_models  # noqa: E402
+
 con = duckdb.connect(str(ROOT / "data/encore.duckdb"), read_only=True)
 sql = (ROOT / "analysis/features.sql").read_text()
-horizon = con.execute("SELECT horizon_days FROM raw.params").fetchone()[0]
+train_cutoff, horizon = con.execute("SELECT train_cutoff, horizon_days FROM raw.params").fetchone()
 
-# Every label window ends on or before Nov 12, the test snapshot, so nothing overlaps the test period.
-OPTIONS = {"1 snapshot (Oct 22) - used": ["2018-10-22"],
-           "2 snapshots (Oct 15, 22)": ["2018-10-15", "2018-10-22"],
-           "3 snapshots (Oct 8, 15, 22)": ["2018-10-08", "2018-10-15", "2018-10-22"]}
-MODELS = {
-    "logistic_regression": make_pipeline(
-        StandardScaler(), LogisticRegression(C=0.5, class_weight="balanced", max_iter=2000)),
-    "gradient_boosting": HistGradientBoostingClassifier(
-        max_depth=3, learning_rate=0.05, max_iter=150, min_samples_leaf=10,
-        class_weight="balanced", random_state=7),
-}
+# Extra snapshots are 1 and 2 weeks BEFORE the training cutoff, so every label window still ends on or
+# before the test snapshot and nothing overlaps the test period.
+snap = [str(train_cutoff - timedelta(days=d)) for d in (14, 7, 0)]
+OPTIONS = {f"1 snapshot ({snap[2]}) - used": snap[2:],
+           f"2 snapshots ({snap[1]}, {snap[2]})": snap[1:],
+           f"3 snapshots ({snap[0]} to {snap[2]})": snap}
+MODELS = make_models(7)
 
 rows = []
 for option, cuts in OPTIONS.items():

@@ -1,5 +1,5 @@
 band,plan,users,churned_next_21d,churn_rate
-rest,free,59,2,0.0339
-rest,paid,88,7,0.0795
-top_20pct,free,13,2,0.1538
-top_20pct,paid,24,2,0.0833
+rest,free,61,2,0.0328
+rest,paid,86,6,0.0698
+top_20pct,free,11,2,0.1818
+top_20pct,paid,26,3,0.1154

@@ -1,4 +1,4 @@
--- ANALYTICS: what happened to users in the 21 days after the test snapshot (Nov 12).
+-- ANALYTICS: what happened to users in the 21 days after the test snapshot (test_cutoff, Nov 10).
 -- The project's churn label is "clicked Cancellation Confirmation". Some users never cancel:
 -- they just stop coming. This table counts both, so the label's blind spot has a size.
 --   cancelled   = reached Cancellation Confirmation in the 21 days

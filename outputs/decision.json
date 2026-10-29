@@ -26,17 +26,17 @@
     "paid_users_at_snapshot": 112,
     "paid_cancel_rate_21d": 0.0804,
     "paid_cancel_rate_month_est": 0.1148,
-    "model_top20_paid_users": 24,
-    "model_top20_paid_churn_rate": 0.0833,
-    "model_rest_paid_churn_rate": 0.0795,
-    "model_p_value_vs_random": 0.2513
+    "model_top20_paid_users": 26,
+    "model_top20_paid_churn_rate": 0.1154,
+    "model_rest_paid_churn_rate": 0.0698,
+    "model_p_value_vs_random": 0.0954
   },
   "monthly_per_10k_paid": {
     "cancel_page_attempts": 1148,
-    "model_flagged_contacts": 3061,
-    "model_flagged_true_churners": 255.1
+    "model_flagged_contacts": 3316,
+    "model_flagged_true_churners": 382.7
   },
-  "option_b_break_even_save_rate": 0.6608,
+  "option_b_break_even_save_rate": 0.4606,
   "option_b_can_break_even": true,
   "ab_test": {
     "control_retained_30d_assumed": 0.02,

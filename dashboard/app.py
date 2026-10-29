@@ -34,16 +34,15 @@ def table(df, label="Show the table"):
 
 
 st.set_page_config(page_title="Encore - streaming churn & retention", layout="wide")
-st.title("Encore: who leaves a music app, and what to do about it")
-st.caption("Public Udacity 'Sparkify' sample event log (simulated app), Oct 1 - Dec 3 2018. "
-           "All numbers are read from the pipeline output in outputs/.")
-
 churn = csv("churn_summary").iloc[0]
 daily = csv("daily_active")
-daily = daily[~daily.is_partial_day]          # Dec 3 has only 71 minutes of data
 model = js("model_metrics")
 decision = js("decision")
 flow = csv("cancel_flow").set_index("plan")
+st.title("Encore: who leaves a music app, and what to do about it")
+st.caption(f"Public Udacity 'Sparkify' sample event log (simulated app), {daily.day.min()} to {daily.day.max()}. "
+           "All numbers are read from the pipeline output in outputs/.")
+
 
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Users in the log", f"{int(churn.users)}")
@@ -68,7 +67,7 @@ with tabs[0]:
             tooltip=[alt.Tooltip("day:T"), "tier", "users"]).properties(height=280),
         width="stretch")
     paid_days = int((daily.dau_paid > daily.dau_free).sum())
-    st.markdown(f"Paid daily users outnumbered free ones on {paid_days} of {len(daily)} full days.")
+    st.markdown(f"Paid daily users outnumbered free ones on {paid_days} of {len(daily)} days.")
     s = daily.dropna(subset=["stickiness"]).assign(day=lambda x: pd.to_datetime(x.day))
     st.subheader("Stickiness = DAU / active users in the last 28 days")
     st.altair_chart(
@@ -158,9 +157,10 @@ with tabs[3]:
 # ---------------- RFM ----------------
 with tabs[4]:
     rf = csv("rfm_segments")
-    st.subheader("RFM segments at Nov 12, and who cancelled in the next 21 days")
+    snap = pd.Timestamp(model["test_cutoff"]).strftime("%b %d")
+    st.subheader(f"RFM segments at {snap}, and who cancelled in the next {model['horizon_days']} days")
     st.markdown("R = days since last event, F = sessions, M = songs played (no money in this data). "
-                "Segments are built from events before Nov 12 only; the outcome is what happened after.")
+                f"Segments are built from events before {snap} only; the outcome is what happened after.")
     st.altair_chart(
         alt.Chart(rf).mark_bar(color=BLUE, cornerRadiusEnd=4).encode(
             y=alt.Y("segment:N", sort="-x", title=None, axis=alt.Axis(labelLimit=320)),
@@ -176,7 +176,7 @@ with tabs[4]:
 # ---------------- Model ----------------
 with tabs[5]:
     t = model["test"]
-    st.subheader("Churn model: can we spot cancellers 21 days early?")
+    st.subheader(f"Churn model: can we spot cancellers {model['horizon_days']} days early?")
     st.markdown(f"Trained on users at {model['train_cutoff']} ({model['train_users']} users, "
                 f"{model['train_churners']} cancellers), tested on users at {model['test_cutoff']} "
                 f"({model['test_users']} users, **{model['test_churners']} cancellers**). "
@@ -204,13 +204,21 @@ with tabs[5]:
         width="stretch")
     table(imp, "All features")
     table(csv("calibration"), "Calibration (predicted vs actual, three risk groups)")
-    table(csv("experiment_snapshots"), "Experiment that did not help: stacking more snapshots")
+    table(csv("experiment_snapshots"), "Experiment: stacking more weekly snapshots (training CV only)")
+    rb = csv("robustness_cutoffs")
+    st.subheader("Robustness: the same test repeated on 7 different dates")
+    st.markdown(f"The chosen model beat random at p < 0.05 on **{int((rb.chosen_p_value < 0.05).sum())} of "
+                f"{len(rb)}** date choices. Logistic regression caught more cancellers than the random average "
+                f"on {int((rb.logistic_regression_caught_top20 > rb.random_expected_caught).sum())} of {len(rb)}. "
+                "The windows overlap, so these are not independent tests.")
+    table(rb, "Robustness table")
     wl = model["test_wide_label_cancel_or_silent"]
-    st.markdown(f"**Label blind spot:** at Nov 12, {wl['users_left_any_way']} users left in the next 21 days "
+    st.markdown(f"**Label blind spot:** after {model['test_cutoff']}, {wl['users_left_any_way']} users left within "
+                f"{model['horizon_days']} days "
                 f"if we also count users who simply went silent. For that wider label, 'days since last "
                 f"event' is the best ranker (PR-AUC {wl['rule_days_since_last_event']['pr_auc']} vs base "
                 f"{wl['rate']}).")
-    table(csv("snapshot_outcomes"), "What happened after Nov 12 (cancelled / went silent / stayed)")
+    table(csv("snapshot_outcomes"), "What happened after the test snapshot (cancelled / went silent / stayed)")
 
 # ---------------- Decision ----------------
 with tabs[6]:
@@ -221,9 +229,10 @@ with tabs[6]:
         f"page confirmed (median {fx['median_seconds_cancel_to_confirm']:.0f} seconds later). That screen reaches "
         "people who are about to leave.\n"
         f"- Paid users the model flags cancel at {pct(fx['model_top20_paid_churn_rate'])}; the other paid "
-        f"users at {pct(fx['model_rest_paid_churn_rate'])}. The model does not find paid cancellers.\n"
+        f"users at {pct(fx['model_rest_paid_churn_rate'])} (risk-band table below: a gap of a few people).\n"
         f"- The e-mail option breaks even only if it saves "
         f"{pct(decision['option_b_break_even_save_rate'], 0)} of flagged cancellers.")
+    table(csv("risk_bands"), "Risk bands at the test snapshot (by plan)")
     sc = csv("decision_scenarios")
     st.altair_chart(
         alt.Chart(sc).mark_bar(cornerRadiusEnd=4).encode(

@@ -29,7 +29,6 @@ def test_activity_bounds():
     d = csv("daily_active").dropna(subset=["mau_28d"])
     assert (d.dau <= d.mau_28d).all()
     assert d.stickiness.between(0, 1).all()
-    assert (csv("daily_active").is_partial_day.sum()) == 1
 
 
 def test_cohorts_start_at_100_percent():

@@ -27,8 +27,6 @@ songs AS (
     SELECT event_date AS day, count(*) AS songs FROM clean.events WHERE page = 'NextSong' GROUP BY 1
 )
 SELECT dau.day, dau.dau, dau.dau_paid, dau.dau_free, songs.songs,
-       -- the log ends at 01:11 on Dec 3, so the last day is not a full day: charts and medians skip it
-       dau.day = (SELECT max(day) FROM days)                                                AS is_partial_day,
        CASE WHEN dau.day >= (SELECT min(day) FROM days) + INTERVAL 27 DAY THEN mau.mau_28d END AS mau_28d,
        CASE WHEN dau.day >= (SELECT min(day) FROM days) + INTERVAL 27 DAY
             THEN round(dau.dau / mau.mau_28d, 4) END                                         AS stickiness
@@ -36,7 +34,7 @@ FROM dau JOIN mau USING (day) LEFT JOIN songs USING (day)
 ORDER BY dau.day;
 
 -- One row per week (weeks start on Monday): weekly active users and songs.
--- The first and last weeks are partial (the log starts on a Monday, Oct 1, and ends mid-week).
+-- The log starts on a Monday (Oct 1), so the first week is full; the last week (Nov 26-30) has 5 of 7 days.
 CREATE TABLE analytics.weekly_active AS
 SELECT date_trunc('week', event_date)::DATE                        AS week,
        count(DISTINCT event_date)                                   AS days_in_log,

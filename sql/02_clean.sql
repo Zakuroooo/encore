@@ -8,6 +8,8 @@ WITH user_events AS (
     SELECT *
     FROM raw.events
     WHERE userId IS NOT NULL AND userId <> ''
+      -- stop at log_end (see 00_params.sql): the 4 stray events after it are not real coverage
+      AND make_timestamp(ts * 1000) < (SELECT log_end FROM raw.params)
 ),
 -- Step 2: remove exact duplicate rows (same user, session, item number, time and page).
 deduped AS (

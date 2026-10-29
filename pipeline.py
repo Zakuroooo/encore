@@ -6,7 +6,8 @@ Steps (each one stops everything if it fails):
   3. check       tests/check_quality.py       data-quality checks; any FAIL stops the pipeline
   4. model       analysis/churn_model.py      churn model, test-set results
   5. experiment  analysis/experiment_snapshots.py   the "more snapshots" idea that did not help
-  6. decide      analysis/decision.py         sizing of the save options + A/B test size
+  6. robustness  analysis/robustness.py       repeat the model test on 7 different dates, report all
+  7. decide      analysis/decision.py         sizing of the save options + A/B test size
 
 Use --from <step> to restart from a step, e.g.  python pipeline.py --from model
 """
@@ -23,6 +24,7 @@ STEPS = [
     ("check", "tests/check_quality.py"),
     ("model", "analysis/churn_model.py"),
     ("experiment", "analysis/experiment_snapshots.py"),
+    ("robustness", "analysis/robustness.py"),
     ("decide", "analysis/decision.py"),
 ]
 

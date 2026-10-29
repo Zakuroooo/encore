@@ -1,7 +1,7 @@
 training_data,model,rows,churn_rows,churn_rate,cv_pr_auc_mean,cv_pr_auc_sd,lift_over_random
-1 snapshot (Oct 22) - used,logistic_regression,184,16,0.087,0.137,0.0106,1.58
-1 snapshot (Oct 22) - used,gradient_boosting,184,16,0.087,0.1791,0.0435,2.06
-"2 snapshots (Oct 15, 22)",logistic_regression,366,39,0.1066,0.1307,0.0109,1.23
-"2 snapshots (Oct 15, 22)",gradient_boosting,366,39,0.1066,0.1694,0.0214,1.59
-"3 snapshots (Oct 8, 15, 22)",logistic_regression,521,58,0.1113,0.1298,0.013,1.17
-"3 snapshots (Oct 8, 15, 22)",gradient_boosting,521,58,0.1113,0.1259,0.0194,1.13
+1 snapshot (2018-10-20) - used,logistic_regression,185,18,0.0973,0.1487,0.008,1.53
+1 snapshot (2018-10-20) - used,gradient_boosting,185,18,0.0973,0.1702,0.0504,1.75
+"2 snapshots (2018-10-13, 2018-10-20)",logistic_regression,368,42,0.1141,0.1557,0.016,1.36
+"2 snapshots (2018-10-13, 2018-10-20)",gradient_boosting,368,42,0.1141,0.2375,0.0215,2.08
+3 snapshots (2018-10-06 to 2018-10-20),logistic_regression,515,61,0.1184,0.1412,0.0144,1.19
+3 snapshots (2018-10-06 to 2018-10-20),gradient_boosting,515,61,0.1184,0.1668,0.0185,1.41

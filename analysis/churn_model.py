@@ -1,5 +1,5 @@
 """Step 4: churn model.
-Train on users as of Oct 22 (label: cancelled by Nov 12), test on users as of Nov 12 (label: cancelled by Dec 3).
+Train on users as of Oct 20 (label: cancelled by Nov 10), test on users as of Nov 10 (label: cancelled by Nov 30).
 Four rankers are compared on the SAME test set:
   0. random order - what you get with no information (10,000 random shuffles)
   1. a simple rule: "days since last event" (no machine learning)
@@ -17,16 +17,12 @@ import duckdb
 import numpy as np
 import pandas as pd
 from sklearn.base import clone
-from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.inspection import permutation_importance
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from model_utils import bootstrap_pr_auc, top_k_stats  # noqa: E402
+from model_utils import bootstrap_pr_auc, make_models, random_caught, top_k_stats  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs"
@@ -59,7 +55,8 @@ MEANING = {
 }
 
 con = duckdb.connect(str(ROOT / "data/encore.duckdb"), read_only=True)
-train_cutoff, test_cutoff, horizon = con.execute("SELECT * FROM raw.params").fetchone()
+train_cutoff, test_cutoff, horizon = con.execute(
+    "SELECT train_cutoff, test_cutoff, horizon_days FROM raw.params").fetchone()
 feature_sql = (ROOT / "analysis/features.sql").read_text()
 
 
@@ -73,13 +70,7 @@ assert set(FEATURES) == set(MEANING), "every feature needs a plain-English meani
 X_tr, y_tr = train[FEATURES].astype(float), train["churned"]
 X_te, y_te = test[FEATURES].astype(float), test["churned"]
 
-models = {
-    "logistic_regression": make_pipeline(
-        StandardScaler(), LogisticRegression(C=0.5, class_weight="balanced", max_iter=2000)),
-    "gradient_boosting": HistGradientBoostingClassifier(
-        max_depth=3, learning_rate=0.05, max_iter=150, min_samples_leaf=10,
-        class_weight="balanced", random_state=SEED),
-}
+models = make_models(SEED)
 
 # 1. Choose the model on training data only (cross-validated PR-AUC).
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
@@ -110,18 +101,15 @@ for name, s in scores.items():
 # 2b. Is any of this better than luck? Shuffle the users into a random order 10,000 times and count
 #     how many churners land in the top 20% each time. p_value = share of random orders that catch
 #     at least as many churners as the ranker did. Small p (< 0.05) = unlikely to be luck.
-rng = np.random.default_rng(SEED)
-k = math.ceil(TOP_SHARE * len(y_te))
-y_arr = y_te.to_numpy()
-random_caught = np.array([y_arr[rng.permutation(len(y_arr))[:k]].sum() for _ in range(10_000)])
+rand = random_caught(y_te, TOP_SHARE, seed=SEED)
 results["random_order"] = {
     "pr_auc": round(float(y_te.mean()), 4),  # expected PR-AUC of a random order = the churn rate
-    "k": k, "churners_caught": round(float(random_caught.mean()), 2),
-    "churners_caught_95_range": [int(np.percentile(random_caught, 2.5)), int(np.percentile(random_caught, 97.5))],
-    "recall_at_k": round(float(random_caught.mean()) / max(int(y_arr.sum()), 1), 4), "lift_at_k": 1.0,
+    "k": math.ceil(TOP_SHARE * len(y_te)), "churners_caught": round(float(rand.mean()), 2),
+    "churners_caught_95_range": [int(np.percentile(rand, 2.5)), int(np.percentile(rand, 97.5))],
+    "recall_at_k": round(float(rand.mean()) / max(int(y_te.sum()), 1), 4), "lift_at_k": 1.0,
 }
 for name in scores:
-    results[name]["p_value_vs_random"] = round(float(np.mean(random_caught >= results[name]["churners_caught"])), 4)
+    results[name]["p_value_vs_random"] = round(float(np.mean(rand >= results[name]["churners_caught"])), 4)
 
 # 2c. Label check (no training): the label only counts users who click Cancel. Some users just stop
 #     coming. With a wider label "left = cancelled OR no events at all in the 21 days", how do the

@@ -41,9 +41,9 @@ def test_features_ignore_the_future(db_path, which):
 
 def test_label_windows_do_not_overlap(db_path):
     con = duckdb.connect(str(db_path), read_only=True)
-    train, test, h, log_end = con.execute(
-        "SELECT train_cutoff, test_cutoff, horizon_days, (SELECT max(event_ts) FROM clean.events) FROM raw.params"
-    ).fetchone()
+    train, test, h, log_end = con.execute("SELECT train_cutoff, test_cutoff, horizon_days, log_end FROM raw.params"
+                                          ).fetchone()
+    assert con.execute("SELECT max(event_ts) < ?::TIMESTAMP FROM clean.events", [str(log_end)]).fetchone()[0]
     assert pd.Timestamp(train) + pd.Timedelta(days=h) <= pd.Timestamp(test), "train label window runs into test"
     assert pd.Timestamp(test) + pd.Timedelta(days=h) <= pd.Timestamp(log_end), "test label window not fully observed"
 

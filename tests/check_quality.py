@@ -10,7 +10,8 @@ con = duckdb.connect(str(ROOT / "data/encore.duckdb"), read_only=True)
 q = lambda sql: con.execute(sql).fetchone()[0]
 
 EXPECTED_RAW_ROWS = 286_500          # documented size of the mini Sparkify file
-WINDOW = ("2018-10-01", "2018-12-04")  # documented log window (UTC)
+WINDOW = ("2018-10-01", "2018-12-01")  # real coverage of the log (UTC); see sql/00_params.sql
+KNOWN_TAIL_EVENTS = 4                  # stray user events on/after Dec 1, dropped on purpose
 failures = []
 
 def check(name, ok, detail):
@@ -22,11 +23,15 @@ def check(name, ok, detail):
 raw_rows = q("SELECT count(*) FROM raw.events")
 check("raw row count", raw_rows == EXPECTED_RAW_ROWS, f"{raw_rows:,} rows (expected {EXPECTED_RAW_ROWS:,})")
 no_user = q("SELECT count(*) FROM raw.events WHERE userId IS NULL OR userId = ''")
+tail = q("""SELECT count(*) FROM raw.events WHERE userId <> ''
+            AND make_timestamp(ts * 1000) >= (SELECT log_end FROM raw.params)""")
+check("tail after log_end is the known one", tail == KNOWN_TAIL_EVENTS,
+      f"{tail} user events on/after log_end (expected {KNOWN_TAIL_EVENTS})")
 raw_dupes = q("""SELECT count(*) - count(DISTINCT (userId, sessionId, itemInSession, ts, page))
                  FROM raw.events WHERE userId <> ''""")
 clean_rows = q("SELECT count(*) FROM clean.events")
-check("clean = raw - no-user rows - duplicates", clean_rows == raw_rows - no_user - raw_dupes,
-      f"{clean_rows:,} = {raw_rows:,} - {no_user:,} - {raw_dupes:,}")
+check("clean = raw - no-user rows - tail - duplicates", clean_rows == raw_rows - no_user - tail - raw_dupes,
+      f"{clean_rows:,} = {raw_rows:,} - {no_user:,} - {tail} - {raw_dupes:,}")
 
 # 2. Nulls in the columns every metric depends on.
 for col in ["user_id", "session_id", "event_ts", "page", "level", "registration_ts"]:
@@ -47,6 +52,12 @@ check("registration quirk is the known one", fixed == KNOWN_REG_QUIRK,
       f"{fixed} users had registration after first event (expected {KNOWN_REG_QUIRK}, corrected in clean layer)")
 bad_reg = q("SELECT count(*) FROM clean.users WHERE registration_ts > first_event_ts")
 check("registration before first event (after fix)", bad_reg == 0, f"{bad_reg} users")
+
+# 4b. Every day inside the window has real volume (a near-empty day means the coverage is broken).
+thin = q("""SELECT count(*) FROM (SELECT event_date, count(*) n FROM clean.events GROUP BY 1)
+            WHERE n < 0.2 * (SELECT median(n) FROM (SELECT count(*) n FROM clean.events GROUP BY event_date))""")
+n_days = q("SELECT count(DISTINCT event_date) FROM clean.events")
+check("no near-empty days", thin == 0 and n_days == 61, f"{n_days} days, {thin} with < 20% of median volume")
 
 # 5. Allowed values.
 bad_level = q("SELECT count(*) FROM clean.events WHERE level NOT IN ('free', 'paid')")

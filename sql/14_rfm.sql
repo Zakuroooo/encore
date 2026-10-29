@@ -1,4 +1,4 @@
--- ANALYTICS: RFM segments, measured at the test snapshot (Nov 12) using only events before it,
+-- ANALYTICS: RFM segments, measured at the test snapshot (test_cutoff, Nov 10) using only events before it,
 -- then compared with who actually cancelled in the 21 days after. This makes RFM a forward-looking
 -- test, not a look back at people who already left.
 -- R = days since last event, F = sessions, M = songs played. There is no money in this data,

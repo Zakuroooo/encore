@@ -26,7 +26,7 @@ SELECT f.cohort_week,
 FROM firsts f
 JOIN activity a USING (user_id)
 JOIN sizes s USING (cohort_week)
--- the last log week is partial (Dec 3 only), so it is left out to avoid a fake drop
+-- the last log week is partial (Nov 26-30, 5 of 7 days), so it is left out to avoid a fake drop
 WHERE a.active_week < (SELECT w FROM last_week)
 GROUP BY 1, 2, 3
 ORDER BY 1, 3;
