@@ -10,8 +10,7 @@ Who stops using a music app, can we see it coming, and what is worth doing about
 Built on the public Udacity **Sparkify** event log (simulated app, 225 users, 278,150 events, Oct 1 – Nov 30 2018)
 with **DuckDB SQL**, **scikit-learn** and a **Streamlit** dashboard. One command rebuilds every number.
 
-**Live demo:** not deployed yet. See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the Streamlit Community Cloud steps,
-or run it locally (below).
+**Live demo:** [enc0re.streamlit.app](https://enc0re.streamlit.app) (Streamlit Community Cloud; the first visit after a few idle days takes ~30 s to wake up).
 
 **Bottom line:** a churn model is the wrong first investment here. Every user who opened the Cancel page went
 through with it, in a median of 25.5 seconds, so the cheapest win is a tested save offer on that page.
